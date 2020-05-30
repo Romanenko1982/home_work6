@@ -23,6 +23,16 @@ public class Man extends People {
   }
 
   @Override
+  public void beforeMove() {
+    System.out.println("сначала только ползать или на месте");
+  }
+
+  @Override
+  public double getPrice() {
+    return 0;
+  }
+
+  @Override
   public void run() {
     switch (sport) {
       case RUN:

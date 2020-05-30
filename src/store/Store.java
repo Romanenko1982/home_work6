@@ -1,11 +1,11 @@
 package store;
 
-import cars.abstractClass.Car;
+import interface_movable.Movable;
 import java.util.ArrayList;
 
-public class Store<T extends Car> {
+public class Store<T extends Movable> {
 
-  private double amountOfMoney = 1000;
+  private double amountOfMoney = 40000;
   private ArrayList<T> items;
 
   public Store(ArrayList<T> items) {
@@ -18,24 +18,40 @@ public class Store<T extends Car> {
     }
   }
 
-  public T purchase(int numberItem, double money) {
-    if (money >= items.get(numberItem - 1).getPrice()) {
-      amountOfMoney += items.get(numberItem - 1).getPrice();
-      return items.remove(numberItem - 1);
-    } else {
-      throw new Error("Вам не хватает денежных средств");
+  public T purchaseAtTheStore(int numberItem, double money) {
+    double delta = items.get(numberItem - 1).getPrice() - money;
+    while (money < items.get(numberItem - 1).getPrice()) {
+      try {
+        System.out.println("Вам не хватает денежных средств для преобретения товара " +
+            items.get(numberItem - 1) + " т.к. его стоимость больше ваших денежных средств на "
+            + delta);
+        wait();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
+    amountOfMoney += items.get(numberItem - 1).getPrice();
+    items.remove(numberItem - 1);
+    return null;
   }
 
-  public void sell(double sellMoney, T item) {
+  public synchronized void sellToTheStore(double sellMoney, T item) {
+    while (amountOfMoney < sellMoney) {
+      try {
+        System.out.println("Не хватает денежных средств в кассе");
+        wait();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
     if (sellMoney > item.getPrice()) {
-      throw new Error("Цена завышена");
-    } else if (sellMoney > amountOfMoney) {
-      throw new Error("Не хватает денежных средств в кассе");
+      System.out.println("Цена завышена");
     } else {
       amountOfMoney -= sellMoney;
+      System.out.println("Ваш товар преобрел магазин за " + sellMoney + " рублей");
       items.add(item);
     }
+    notify();
   }
 
   public double getAmountOfMoney() {
