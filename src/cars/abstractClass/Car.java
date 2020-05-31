@@ -28,6 +28,11 @@ public abstract class Car implements Movable {
     this.price = price;
   }
 
+  public Car(Brand brand, double price) {
+    this.brand = brand;
+    this.price = price;
+  }
+
   public boolean isMove() {
     return speed > 0;
   }

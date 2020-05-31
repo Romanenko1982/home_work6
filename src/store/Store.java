@@ -5,8 +5,9 @@ import java.util.ArrayList;
 
 public class Store<T extends Movable> {
 
-  private double amountOfMoney = 40000;
-  private ArrayList<T> items;
+  volatile private double amountOfMoney = 1000;
+  volatile private ArrayList<T> items;
+
 
   public Store(ArrayList<T> items) {
     this.items = items;
@@ -18,25 +19,24 @@ public class Store<T extends Movable> {
     }
   }
 
-  public T purchaseAtTheStore(int numberItem, double money) {
-    double delta = items.get(numberItem - 1).getPrice() - money;
-    while (money < items.get(numberItem - 1).getPrice()) {
+  public synchronized void purchaseAtTheStore(int numberItem) {
+    T item = items.get(numberItem - 1);
+    while (items.size() < 4) {
       try {
-        System.out.println("Вам не хватает денежных средств для преобретения товара " +
-            items.get(numberItem - 1) + " т.к. его стоимость больше ваших денежных средств на "
-            + delta);
         wait();
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
-    amountOfMoney += items.get(numberItem - 1).getPrice();
+    System.out.println(
+        "Вы преобрели товар " + item + " за " + item.getPrice() + " рублей");
+    amountOfMoney += item.getPrice();
     items.remove(numberItem - 1);
-    return null;
+    notify();
   }
 
-  public synchronized void sellToTheStore(double sellMoney, T item) {
-    while (amountOfMoney < sellMoney) {
+  public synchronized void sellToTheStore(T item) {
+    while (amountOfMoney < item.getPrice()) {
       try {
         System.out.println("Не хватает денежных средств в кассе");
         wait();
@@ -44,15 +44,13 @@ public class Store<T extends Movable> {
         e.printStackTrace();
       }
     }
-    if (sellMoney > item.getPrice()) {
-      System.out.println("Цена завышена");
-    } else {
-      amountOfMoney -= sellMoney;
-      System.out.println("Ваш товар преобрел магазин за " + sellMoney + " рублей");
-      items.add(item);
-    }
+    amountOfMoney -= item.getPrice();
+    System.out.println("Ваш товар преобрел магазин за " + item.getPrice() + " рублей");
+    items.add(item);
     notify();
+    System.out.println(amountOfMoney);
   }
+
 
   public double getAmountOfMoney() {
     return amountOfMoney;

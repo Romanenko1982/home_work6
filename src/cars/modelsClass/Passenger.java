@@ -16,6 +16,13 @@ public class Passenger extends Car {
     this.accelerator = accelerator;
   }
 
+  public Passenger(Brand brand, double price, double accelerator) {
+    super(brand, price);
+    this.accelerator = accelerator;
+  }
+
+
+
   @Override
   public void move() {
     System.out.println("Не еде, а лечу");
