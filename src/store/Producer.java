@@ -6,11 +6,9 @@ import cars.modelsEnum.Brand;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-
 public class Producer implements Runnable {
 
   Store<Car> store;
-
 
   public Producer(Store<Car> store) {
     this.store = store;
@@ -22,6 +20,11 @@ public class Producer implements Runnable {
       store.sellToTheStore(900, new Passenger(Brand.MERCEDES, "Black",
           new GregorianCalendar(1980, Calendar.MARCH, 12), 130, 1000,
           10));
+//      try {
+//        Thread.sleep(50);
+//      } catch (InterruptedException e) {
+//        e.printStackTrace();
+//      }
     }
   }
 }

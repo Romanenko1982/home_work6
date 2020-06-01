@@ -19,25 +19,32 @@ public class Store<T extends Movable> {
     }
   }
 
-  public synchronized void purchaseAtTheStore(int numberItem, double purchaseMoney) {
-    T item = items.get(numberItem - 1);
-    while (items.size() < 1 || purchaseMoney < item.getPrice() || consumer.moneyConsumer <=
-        item.getPrice()) {
-      try {
-        wait();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+  public void purchaseAtTheStore(int numberItem, double purchaseMoney) {
+    synchronized (this) {
+      T item = items.get(numberItem - 1);
+      while (items.size() < 1 || purchaseMoney < item.getPrice() ||
+          consumer.moneyConsumer <= item.getPrice()) {
+        try {
+          System.out.println(Thread.currentThread().isAlive());
+          System.out.println(Thread.currentThread().getState());
+          wait();
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
       }
+      System.out.println(
+          "Вы преобрели товар " + item + " за " + item.getPrice() + " рублей");
+      amountOfMoney += item.getPrice();
+      consumer.moneyConsumer -= item.getPrice();
+      items.remove(numberItem - 1);
+      System.out.println("Остаток денежных средств на счету магазина равен " + amountOfMoney);
+      System.out.println("Остаток денежных средств на Вашем счету равен " + consumer.moneyConsumer);
+      System.out.println("===========================================================");
+      System.out.println(Thread.currentThread().isAlive());
+      System.out.println(Thread.currentThread().getState());
+      Counter.iteration();
+      notify();
     }
-    System.out.println(
-        "Вы преобрели товар " + item + " за " + item.getPrice() + " рублей");
-    amountOfMoney += item.getPrice();
-    consumer.moneyConsumer -= item.getPrice();
-    items.remove(numberItem - 1);
-    System.out.println("Остаток денежных средств на счету магазина равен " + amountOfMoney);
-    System.out.println("Остаток денежных средств на Вашем счету равен " + consumer.moneyConsumer);
-    System.out.println("===========================================================");
-    notify();
   }
 
   public synchronized void sellToTheStore(double sellMoney, T item) {
@@ -50,6 +57,8 @@ public class Store<T extends Movable> {
     while (amountOfMoney < sellMoney) {
       System.out.println("Не хватает в кассе магазина необходимой суммы.");
       try {
+        System.out.println(Thread.currentThread().isAlive());
+        System.out.println(Thread.currentThread().getState());
         wait();
       } catch (InterruptedException e) {
         e.printStackTrace();
@@ -62,6 +71,9 @@ public class Store<T extends Movable> {
     System.out.println("Остаток денежных средств в кассе магазина равен " + amountOfMoney);
     System.out.println("Остаток денежных средств на Вашем счету равен " + consumer.moneyConsumer);
     System.out.println("-----------------------------------------------------------");
+    System.out.println(Thread.currentThread().isAlive());
+    System.out.println(Thread.currentThread().getState());
+    Counter.iteration();
     notify();
   }
 }
