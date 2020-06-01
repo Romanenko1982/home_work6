@@ -4,7 +4,12 @@ import cars.abstractClass.Car;
 
 public class Consumer implements Runnable {
   Store<Car> store;
-//  volatile static double money = 1100;
+  volatile double moneyConsumer = 1000;
+
+  public Consumer() {
+    this.store = store;
+    this.moneyConsumer = moneyConsumer;
+  }
 
   public Consumer(Store<Car> store) {
     this.store = store;
@@ -13,7 +18,7 @@ public class Consumer implements Runnable {
   @Override
   public void run() {
     for (int i = 1; i < 5; i++) {
-      store.purchaseAtTheStore(1);
+      store.purchaseAtTheStore(1, moneyConsumer);
 
 
 

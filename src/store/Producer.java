@@ -19,7 +19,7 @@ public class Producer implements Runnable {
   @Override
   public void run() {
     for (int i = 1; i < 5; i++) {
-      store.sellToTheStore( new Passenger(Brand.MERCEDES, "Black",
+      store.sellToTheStore(900, new Passenger(Brand.MERCEDES, "Black",
           new GregorianCalendar(1980, Calendar.MARCH, 12), 130, 1000,
           10));
     }

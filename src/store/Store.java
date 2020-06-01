@@ -5,9 +5,9 @@ import java.util.ArrayList;
 
 public class Store<T extends Movable> {
 
+  Consumer consumer = new Consumer();
   volatile private double amountOfMoney = 1000;
   volatile private ArrayList<T> items;
-
 
   public Store(ArrayList<T> items) {
     this.items = items;
@@ -19,9 +19,10 @@ public class Store<T extends Movable> {
     }
   }
 
-  public synchronized void purchaseAtTheStore(int numberItem) {
+  public synchronized void purchaseAtTheStore(int numberItem, double purchaseMoney) {
     T item = items.get(numberItem - 1);
-    while (items.size() < 4) {
+    while (items.size() < 1 || purchaseMoney < item.getPrice() || consumer.moneyConsumer <=
+        item.getPrice()) {
       try {
         wait();
       } catch (InterruptedException e) {
@@ -31,41 +32,37 @@ public class Store<T extends Movable> {
     System.out.println(
         "Вы преобрели товар " + item + " за " + item.getPrice() + " рублей");
     amountOfMoney += item.getPrice();
+    consumer.moneyConsumer -= item.getPrice();
     items.remove(numberItem - 1);
+    System.out.println("Остаток денежных средств на счету магазина равен " + amountOfMoney);
+    System.out.println("Остаток денежных средств на Вашем счету равен " + consumer.moneyConsumer);
+    System.out.println("===========================================================");
     notify();
   }
 
-  public synchronized void sellToTheStore(T item) {
-    while (amountOfMoney < item.getPrice()) {
+  public synchronized void sellToTheStore(double sellMoney, T item) {
+    double delta = sellMoney - item.getPrice();
+    double k = 1.1; // комиссионный сбор
+    if (sellMoney > item.getPrice()) {
+      System.out.println("Цена завышена, стоит снизить цену не менее чем на " + delta);
+      sellMoney -= delta * k;
+    }
+    while (amountOfMoney < sellMoney) {
+      System.out.println("Не хватает в кассе магазина необходимой суммы.");
       try {
-        System.out.println("Не хватает денежных средств в кассе");
         wait();
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
-    amountOfMoney -= item.getPrice();
-    System.out.println("Ваш товар преобрел магазин за " + item.getPrice() + " рублей");
+    amountOfMoney -= sellMoney;
     items.add(item);
+    consumer.moneyConsumer += sellMoney;
+    System.out.println("Ваш товар преобрел магазин за " + sellMoney + " рублей.");
+    System.out.println("Остаток денежных средств в кассе магазина равен " + amountOfMoney);
+    System.out.println("Остаток денежных средств на Вашем счету равен " + consumer.moneyConsumer);
+    System.out.println("-----------------------------------------------------------");
     notify();
-    System.out.println(amountOfMoney);
-  }
-
-
-  public double getAmountOfMoney() {
-    return amountOfMoney;
-  }
-
-  public void setAmountOfMoney(double amountOfMoney) {
-    this.amountOfMoney = amountOfMoney;
-  }
-
-  public ArrayList<T> getItems() {
-    return items;
-  }
-
-  public void setItems(ArrayList<T> items) {
-    this.items = items;
   }
 }
 
